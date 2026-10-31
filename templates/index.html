@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Functional Testing Lab</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <header class="hero">
+      <p class="eyebrow">Python functional testing showcase</p>
+      <h1>Functional Testing Lab</h1>
+      <p>Run the original Python functions safely from an accessible web interface.</p>
+      <p id="deployment-sha" class="sha">Checking deployed commit...</p>
+    </header>
+    <main>
+      <section class="notice">
+        <strong>Input format:</strong> enter a JSON array, such as <code>[18]</code>,
+        <code>["Ada"]</code>, or <code>[[1, 2, 3]]</code>. Use tagged values for
+        tuples and sets: <code>{"type":"tuple","value":[1,2]}</code>.
+      </section>
+      <div class="grid">
+        {% for name in functions %}
+        <article class="card" data-function="{{ name }}">
+          <div class="card-heading">
+            <h2>{{ name }}</h2>
+            <span class="category">{{ "math" if name in ["divide", "power", "square_root", "factorial", "average"] else "data" }}</span>
+          </div>
+          <label for="input-{{ name }}">Arguments (JSON array)</label>
+          <textarea id="input-{{ name }}" rows="2" spellcheck="false">{{ "[18]" if name == "is_adult" else "[]" }}</textarea>
+          <div class="actions">
+            <button type="button" class="run">Execute</button>
+            <button type="button" class="clear secondary">Clear</button>
+          </div>
+          <output class="result" aria-live="polite">Ready.</output>
+        </article>
+        {% endfor %}
+      </div>
+    </main>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+  </body>
+</html>

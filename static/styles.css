@@ -1,0 +1,37 @@
+:root {
+  color-scheme: dark;
+  --bg: #101827;
+  --panel: #18243a;
+  --panel-light: #22314d;
+  --text: #edf3ff;
+  --muted: #a9bad5;
+  --accent: #70e1c1;
+  --danger: #ff9a9a;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: radial-gradient(circle at top right, #243e5e, var(--bg) 45%);
+  color: var(--text);
+  font: 16px/1.5 system-ui, -apple-system, sans-serif;
+}
+.hero, main { max-width: 1180px; margin: auto; padding: 2rem 1.25rem; }
+.hero { padding-top: 3.5rem; }
+h1 { margin: 0; font-size: clamp(2.2rem, 6vw, 4rem); }
+h2 { margin: 0; font-size: 1.15rem; }
+.eyebrow, .category, .sha { color: var(--accent); text-transform: uppercase; letter-spacing: .1em; font-size: .75rem; }
+.sha { text-transform: none; letter-spacing: 0; color: var(--muted); }
+.notice, .card { background: color-mix(in srgb, var(--panel) 90%, transparent); border: 1px solid #334967; border-radius: 14px; }
+.notice { padding: 1rem; margin-bottom: 1.25rem; color: var(--muted); }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+.card { padding: 1rem; box-shadow: 0 10px 24px #0002; }
+.card-heading, .actions { display: flex; justify-content: space-between; align-items: center; gap: .75rem; }
+label { display: block; color: var(--muted); font-size: .85rem; margin: 1rem 0 .4rem; }
+textarea { width: 100%; resize: vertical; border: 1px solid #466184; border-radius: 8px; padding: .7rem; background: #0c1422; color: var(--text); font: .9rem ui-monospace, monospace; }
+button { border: 0; border-radius: 8px; padding: .65rem 1rem; background: var(--accent); color: #0b1b20; font-weight: 700; cursor: pointer; }
+button.secondary { background: var(--panel-light); color: var(--text); }
+button:focus-visible, textarea:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.actions { margin-top: .75rem; }
+.result { display: block; min-height: 3rem; margin-top: .8rem; padding: .7rem; border-radius: 8px; background: #0c1422; white-space: pre-wrap; overflow-wrap: anywhere; }
+.result.error { color: var(--danger); }
