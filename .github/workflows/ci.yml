@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - run: ruff check .
+      - run: pytest --cov=target --cov-branch --cov-report=term-missing --cov-report=html --cov-fail-under=100
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.python-version }}
+          path: htmlcov
+
+  deploy:
+    name: Deploy
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trigger hosting deployment
+        env:
+          DEPLOY_HOOK_URL: ${{ secrets.DEPLOY_HOOK_URL }}
+        run: |
+          test -n "$DEPLOY_HOOK_URL"
+          curl --fail-with-body --silent --show-error -X POST "$DEPLOY_HOOK_URL"
+
+  smoke-test:
+    name: Smoke test live deployment
+    needs: deploy
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wait for deployed commit and exercise API
+        env:
+          LIVE_URL: ${{ secrets.LIVE_URL }}
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          test -n "$LIVE_URL"
+          for attempt in $(seq 1 30); do
+            actual=$(curl --fail --silent "$LIVE_URL/health" | python -c 'import json,sys; print(json.load(sys.stdin)["commit_sha"])')
+            if [ "$actual" = "$EXPECTED_SHA" ]; then break; fi
+            sleep 10
+          done
+          test "$actual" = "$EXPECTED_SHA"
+          curl --fail --silent "$LIVE_URL/health" | grep -q '"status":"healthy"'
+          curl --fail --silent -X POST "$LIVE_URL/api/functions/is_adult" \
+            -H 'Content-Type: application/json' -d '{"args":[18]}' | grep -q '"result":true'
+          curl --fail --silent -X POST "$LIVE_URL/api/functions/celsius_to_fahrenheit" \
+            -H 'Content-Type: application/json' -d '{"args":[100]}' | grep -q '"result":212'
