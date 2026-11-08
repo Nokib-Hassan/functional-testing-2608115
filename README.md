@@ -16,6 +16,7 @@ all 16 functions through a safe JSON API and a responsive browser interface.
 - `app.py`: API, frontend serving, health endpoint, and safe tagged-value decoding
 - `templates/`, `static/`: accessible interactive frontend
 - `.github/workflows/ci.yml`: test, deploy, and smoke-test jobs
+- `render.yaml`: reproducible Render settings with provider auto-deploy disabled
 
 ## Local setup
 
@@ -65,8 +66,9 @@ Every push and pull request to `main` runs linting and the Python 3.10/3.11/3.12
 matrix with branch and line coverage enforced at 100%. Coverage HTML reports are uploaded
 as artifacts. Only a successful push to `main` can run `deploy`; pull requests never deploy.
 
-Configure a hosting provider with automatic deploy disabled, then add these repository
-secrets:
+Render is configured with `autoDeploy: false`, an explicit `$PORT` binding, a
+120-second Gunicorn timeout, and `/health` as its service health check. Add these
+repository secrets:
 
 - `DEPLOY_HOOK_URL`: provider deploy-hook URL
 - `LIVE_URL`: public application URL
