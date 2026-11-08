@@ -29,6 +29,9 @@ flask --app app run
 
 Open `http://127.0.0.1:5000`. The app displays the deployed SHA from Render's
 `RENDER_GIT_COMMIT`, then `COMMIT_SHA`, `GITHUB_SHA`, or `local` when run locally.
+The browser health check and function requests have bounded timeouts, so a sleeping
+or unavailable Render instance produces an actionable message instead of leaving
+the interface stuck indefinitely.
 
 ## Tests and coverage
 
