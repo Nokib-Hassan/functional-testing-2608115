@@ -56,15 +56,26 @@ jobs:
           LIVE_URL: ${{ secrets.LIVE_URL }}
           EXPECTED_SHA: ${{ github.sha }}
         run: |
+          set -euo pipefail
           test -n "$LIVE_URL"
+          actual=""
           for attempt in $(seq 1 30); do
-            actual=$(curl --fail --silent "$LIVE_URL/health" | python -c 'import json,sys; print(json.load(sys.stdin)["commit_sha"])')
-            if [ "$actual" = "$EXPECTED_SHA" ]; then break; fi
+            if health_response=$(curl --fail --silent --show-error \
+              --connect-timeout 10 --max-time 20 "$LIVE_URL/health"); then
+              actual=$(printf '%s' "$health_response" | python -c \
+                'import json,sys; print(json.load(sys.stdin)["commit_sha"])')
+              if [ "$actual" = "$EXPECTED_SHA" ]; then
+                break
+              fi
+            fi
             sleep 10
           done
           test "$actual" = "$EXPECTED_SHA"
-          curl --fail --silent "$LIVE_URL/health" | grep -q '"status":"healthy"'
-          curl --fail --silent -X POST "$LIVE_URL/api/functions/is_adult" \
+          curl --fail --silent --show-error --connect-timeout 10 --max-time 20 \
+            "$LIVE_URL/health" | grep -q '"status":"healthy"'
+          curl --fail --silent --show-error --connect-timeout 10 --max-time 20 \
+            -X POST "$LIVE_URL/api/functions/is_adult" \
             -H 'Content-Type: application/json' -d '{"args":[18]}' | grep -q '"result":true'
-          curl --fail --silent -X POST "$LIVE_URL/api/functions/celsius_to_fahrenheit" \
+          curl --fail --silent --show-error --connect-timeout 10 --max-time 20 \
+            -X POST "$LIVE_URL/api/functions/celsius_to_fahrenheit" \
             -H 'Content-Type: application/json' -d '{"args":[100]}' | grep -q '"result":212'

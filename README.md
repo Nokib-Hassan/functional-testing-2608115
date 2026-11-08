@@ -26,8 +26,8 @@ python -m pip install -r requirements.txt
 flask --app app run
 ```
 
-Open `http://127.0.0.1:5000`. The app displays the deployed SHA from `COMMIT_SHA`,
-`GITHUB_SHA`, or `local` when run locally.
+Open `http://127.0.0.1:5000`. The app displays the deployed SHA from Render's
+`RENDER_GIT_COMMIT`, then `COMMIT_SHA`, `GITHUB_SHA`, or `local` when run locally.
 
 ## Tests and coverage
 
@@ -72,7 +72,9 @@ secrets:
 - `LIVE_URL`: public application URL
 
 The deployment job triggers the provider hook, and `smoke-test` waits for `/health` to
-report `${GITHUB_SHA}` before making three real HTTP checks. No credentials are committed.
+report `${GITHUB_SHA}` before making three real HTTP checks. Every smoke-test request has
+connect and total timeouts, so an unavailable or sleeping service fails the job instead
+of hanging indefinitely. No credentials are committed.
 
 ## Suspected original-source limitations
 
@@ -110,4 +112,4 @@ for incompatible inputs. These behaviors are documented and tested without chang
 - Deployment controlled through GitHub Actions.
 - Live deployment verified through the health endpoint and smoke tests.
 - Instructor repository access: Confirmed.
-- Feature branch and pull request requirements: in progress.
+- Three feature branches and pull requests: completed.

@@ -63,9 +63,6 @@ def _jsonable(value):
     return value
 
 
-# def _commit_sha():
-#     return os.environ.get("COMMIT_SHA", os.environ.get("GITHUB_SHA", "local"))
-
 def _commit_sha():
     return (
         os.environ.get("RENDER_GIT_COMMIT")
@@ -73,6 +70,7 @@ def _commit_sha():
         or os.environ.get("GITHUB_SHA")
         or "local"
     )
+
 
 @app.get("/")
 def index():
