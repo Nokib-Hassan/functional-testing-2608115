@@ -58,3 +58,136 @@ def test_execute_function_error_unknown_and_bad_payload(client):
     assert unknown.status_code == 404
     assert bad_payload.status_code == 400
     assert bad_payload.get_json()["error_type"] == "ValueError"
+
+
+# Added
+
+
+@pytest.mark.parametrize(
+    ("environment", "expected"),
+    [
+        (
+            {
+                "RENDER_GIT_COMMIT": "render123",
+                "COMMIT_SHA": "commit123",
+                "GITHUB_SHA": "github123",
+            },
+            "render123",
+        ),
+        (
+            {"COMMIT_SHA": "commit123", "GITHUB_SHA": "github123"},
+            "commit123",
+        ),
+        ({"GITHUB_SHA": "github123"}, "github123"),
+        ({}, "local"),
+    ],
+)
+def test_health_commit_sha_fallbacks(client, monkeypatch, environment, expected):
+    for key in ("RENDER_GIT_COMMIT", "COMMIT_SHA", "GITHUB_SHA"):
+        monkeypatch.delenv(key, raising=False)
+
+    for key, value in environment.items():
+        monkeypatch.setenv(key, value)
+
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    assert response.get_json() == {
+        "status": "healthy",
+        "commit_sha": expected,
+    }
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        None,
+        [],
+        {},
+        {"args": "18"},
+        {"args": None},
+    ],
+)
+def test_execute_function_rejects_invalid_payloads(client, payload):
+    response = client.post("/api/functions/is_adult", json=payload)
+
+    assert response.status_code == 400
+    assert response.get_json()["ok"] is False
+    assert response.get_json()["error_type"] == "ValueError"
+
+
+def test_execute_function_decodes_none_value(client):
+    response = client.post(
+        "/api/functions/greet",
+        json={"args": [{"type": "none", "value": None}]},
+    )
+
+    assert response.status_code == 200
+    assert response.get_json() == {
+        "ok": True,
+        "result": "Hello, Guest!",
+        "result_type": "str",
+    }
+
+
+def test_execute_function_decodes_json_value(client):
+    response = client.post(
+        "/api/functions/find_max",
+        json={"args": [{"type": "json", "value": "[3, 9, 1]"}]},
+    )
+
+    assert response.status_code == 200
+    assert response.get_json() == {
+        "ok": True,
+        "result": 9,
+        "result_type": "int",
+    }
+
+
+def test_execute_function_handles_unknown_encoded_type(client):
+    response = client.post(
+        "/api/functions/to_int",
+        json={"args": [{"type": "unknown", "value": "12"}]},
+    )
+
+    assert response.status_code == 200
+    assert response.get_json()["result"] == 12
+
+
+@pytest.mark.parametrize(
+    ("name", "payload", "expected_error"),
+    [
+        ("is_adult", {"args": [-1]}, "ValueError"),
+        ("count_vowels", {"args": [123]}, "TypeError"),
+        ("greet", {"args": [123]}, "AttributeError"),
+        ("is_adult", {"args": []}, "TypeError"),
+    ],
+)
+def test_execute_function_returns_supported_errors(
+    client, name, payload, expected_error
+):
+    response = client.post(f"/api/functions/{name}", json=payload)
+
+    assert response.status_code == 400
+    body = response.get_json()
+    assert body["ok"] is False
+    assert body["error_type"] == expected_error
+    assert isinstance(body["error"], str)
+
+
+def test_execute_function_rejects_invalid_json_encoding(client):
+    response = client.post(
+        "/api/functions/find_max",
+        json={"args": [{"type": "json", "value": "not-valid-json"}]},
+    )
+
+    assert response.status_code == 400
+    assert response.get_json()["error_type"] == "JSONDecodeError"
+
+
+def test_unknown_function_returns_json_not_found(client):
+    response = client.post("/api/functions/does_not_exist", json={"args": []})
+
+    assert response.status_code == 404
+    assert response.is_json
+    assert response.get_json() == {"error": "unknown function"}
