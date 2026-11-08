@@ -8,3 +8,7 @@ htmlcov/
 .DS_Store
 .env
 
+# Local assignment source material; do not publish these files.
+instructions.md
+prompt.md
+Practical Assignment Functional Testing, CI CD and Live Deployment.pdf
