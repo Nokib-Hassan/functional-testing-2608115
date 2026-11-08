@@ -191,3 +191,15 @@ def test_unknown_function_returns_json_not_found(client):
     assert response.status_code == 404
     assert response.is_json
     assert response.get_json() == {"error": "unknown function"}
+
+
+def test_static_frontend_assets_are_served(client):
+    styles = client.get("/static/styles.css")
+    script = client.get("/static/app.js")
+
+    assert styles.status_code == 200
+    assert styles.content_type.startswith("text/css")
+    assert b".grid" in styles.data
+    assert script.status_code == 200
+    assert script.content_type.startswith("text/javascript")
+    assert b"fetchWithTimeout" in script.data
