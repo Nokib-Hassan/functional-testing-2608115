@@ -4,7 +4,7 @@ An end-to-end Python functional-testing project built around the instructor-prov
 `target.py`. The original source is intentionally unchanged. A Flask application exposes
 all 16 functions through a safe JSON API and a responsive browser interface.
 
-[![CI](https://github.com/OWNER/functional-testing-STUDENT-ID/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/functional-testing-STUDENT-ID/actions/workflows/ci.yml)
+[![CI](https://github.com/Nokib-Hassan/functional-testing-2608115/actions/workflows/ci.yml/badge.svg)](https://github.com/Nokib-Hassan/functional-testing-2608115/actions/workflows/ci.yml)
 
 ## Stack and structure
 
@@ -84,14 +84,9 @@ for incompatible inputs. These behaviors are documented and tested without chang
 
 ## Repository and live URL
 
-Replace the placeholders in this section and the badge after creating the repository:
-
-- Repository: `https://github.com/OWNER/functional-testing-STUDENT-ID`
-- Live application: `https://YOUR-HOST.example`
-- Health: `https://YOUR-HOST.example/health`
-
-The student ID and public URLs were not available in the supplied project, so they cannot
-be invented safely.
+- **GitHub Repository:** https://github.com/Nokib-Hassan/functional-testing-2608115
+- **Live Application:** https://functional-testing-2608115.onrender.com
+- **Health Endpoint:** https://functional-testing-2608115.onrender.com/health
 
 ## 3–5 minute demonstration script
 
@@ -107,10 +102,12 @@ be invented safely.
 5. (3:30–4:15) Push a temporary failing test, show CI failing with no deploy job, restore
    the working state, and show the final green pipeline.
 
-## GitHub setup checklist
+## GitHub Setup
 
-Create the repository as `functional-testing-<student-id>`, add instructor access, and
-replace the placeholders above. The supplied folder was not a Git repository and no
-student ID, GitHub account, hosting account, or instructor identity was provided, so
-repository creation, branch protection, PRs, and live deployment remain external setup
-actions.
+- GitHub repository created and publicly accessible.
+- GitHub Actions CI/CD workflow configured.
+- Render hosting configured with automatic deployment disabled.
+- Deployment controlled through GitHub Actions.
+- Live deployment verified through the health endpoint and smoke tests.
+- Instructor repository access: Confirmed.
+- Feature branch and pull request requirements: in progress.
